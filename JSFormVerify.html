@@ -21,8 +21,8 @@
     </select>
     <fieldset>
     <legend>健康信息：</legend>
-    <label>身高：<input type="text" /></label>
-    <label>体重：<input type="text" /></label>
+    <label>身高：<input type="text" id="height" /></label>
+    <label>体重：<input type="text" id="weight"/></label>
     </fieldset>
     <input type="button" value="Hello world!"/>
     <input type="submit" id="submit" value="Submit" />
@@ -83,29 +83,32 @@ function FormVerify(obj) {
     function shake(obj, n) {
         obj.style.position = "relative";
         var id = window.setInterval(function() {   
-            shakeIt(obj, n--);
+            if(n%2 == 0) {
+                obj.style.left = "2px";
+                obj.style.right = null;
+            } else {
+                obj.style.right = "2px";
+                obj.style.left = null;
+            }            
             if(n < 0) {
                 clearInterval(id);
+                //恢复元素状态
+                obj.style.position = null;
                 obj.style.left = null;
                 obj.style.right = null;
                 obj.focus();
+            } else {
+                n--;
             }
         }, 50);
-    }
-    function shakeIt(obj, n) {
-        if(n%2 == 0) {
-            obj.style.left = "2px";
-            obj.style.right = null;
-        } else {
-            obj.style.right = "2px";
-            obj.style.left = null;
-        }
     }
 
     this._error = new Array();//记录错误信息
     if(!FormVerify.prototype.inputVerify){
+
         FormVerify.prototype.inputVerify = function(name, rules) {
             var input = (getForm()).elements[name];
+            if(input.type != "text" && input.type != "password" && input.type != "file") return false;
             var inputValue = (input.value).replace(/\s+/g,'');//过滤空格
             var rules = rules.split(",");
             for(var i = 0, len = rules.length; i < len; i++) {
@@ -121,25 +124,30 @@ function FormVerify(obj) {
                             this._error.push({"obj":input,"msg":"illegal email"});//记录error对象
                         };
                         break;
-                    default:break; 
-                }//end swithc
+                    case "number" :
+                        if(isNaN(inputValue)) {//不是数字
+                            this._error.push({"obj":input, "msg":"require number"});
+                        }
+                        break;
+                    default: console.log("default rules="+rules[i]);break;//默认是长度限制
+                }//end switch
             }//end for
-        };
-
-        FormVerify.prototype.checkboxVerify = function(name, rules){
-
-        }
+        };//end function
 
         FormVerify.prototype.showError = function() {
             // console.log(this._error);
-            var obj = this._error[0].obj;
+            //var obj = this._error[0].obj;
             // shake(obj, 8);
             for(var i = 0, len = this._error.length; i < len; i++) {
                 console.log(this._error[i].msg);
                 shake(this._error[i].obj, 8);
             }
-            if(this._error.length != 0) return true;
-            else return false;
+            if(this._error.length != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
         }
 
         
@@ -147,21 +155,23 @@ function FormVerify(obj) {
 
 };
 
-
-
 EventUtil.addHandler(form1, "submit", function(event) {
 
     var myForm = new FormVerify("myForm");
-    myForm.inputVerify("username","notnull,email");
+    myForm.inputVerify("username","notnull,email,0-9");
+    myForm.inputVerify("height","notnull,number");
+    myForm.inputVerify("weight","notnull,number");
     if(myForm.showError()) {
         EventUtil.preventDefault(event);
+    } else {
+        event = EventUtil.getEvent(event);
+        var target = EventUtil.getTarget(event);
+        // console.log(target);
+        var btn = target.elements["submit"];
+        // btn.disabled = true;
+        
     }
 
-    event = EventUtil.getEvent(event);
-    var target = EventUtil.getTarget(event);
-    // console.log(target);
-    var btn = target.elements["submit"];
-    // btn.disabled = true;
 });
 </script>
 </body> 
