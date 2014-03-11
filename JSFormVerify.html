@@ -3,7 +3,7 @@
     <title>JSFormVerify</title>
 </head>
 <body>
-<form id="myForm" name="form1" action="#" method="get">
+<form id="myForm" name="form1" action="index.html" method="post">
     <input type="text" name="username" />
     <input type="radio" name="sex" value="male" /> Male
     <br />
@@ -22,7 +22,7 @@
     <fieldset>
     <legend>健康信息：</legend>
     <label>身高：<input type="text" id="height" /></label>
-    <label>体重：<input type="text" id="weight"/></label>
+    <label>电话：<input type="text" id="phone"/></label>
     </fieldset>
     <input type="button" value="Hello world!"/>
     <input type="submit" id="submit" value="Submit" />
@@ -80,7 +80,7 @@ function FormVerify(obj) {
         return form;
     }
 
-    function shake(obj, n) {
+    function shake(obj, n) {//抖动动画
         obj.style.position = "relative";
         var id = window.setInterval(function() {   
             if(n%2 == 0) {
@@ -120,7 +120,7 @@ function FormVerify(obj) {
                         break;
                     case "email" :
                         var mailReg = /^([a-zA-Z0-9]+[_|\-|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\-|\.]?)*[a-zA-Z0-9]+(\.[a-zA-Z]{2,3})+$/;
-                        if(!mailReg.test(inputValue)) {//不通过
+                        if(!mailReg.test(inputValue)) {//邮件地址不通过
                             this._error.push({"obj":input,"msg":"illegal email"});//记录error对象
                         };
                         break;
@@ -129,12 +129,25 @@ function FormVerify(obj) {
                             this._error.push({"obj":input, "msg":"require number"});
                         }
                         break;
-                    default: console.log("default rules="+rules[i]);break;//默认是长度限制
+                    case "phone" :
+                        var phoneReg = /^((1[358]{1}[0-9]{1}))+\d{8}$/;
+                        if(!phoneReg.test(inputValue)) {//电话号码不通过
+                            this._error.push({"obj":input,"msg":"illegal phoneNumber"});//记录error对象
+                        };
+                        break;
+                    default:
+                        var len = rules[i].split("-");//默认是长度限制
+                        if(len.length == 2) {
+                            if(inputValue.length < len[0] || inputValue.length > len[1]) {
+                                this._error.push({"obj":input,"msg":"illegal lenght"});//记录error对象
+                            }
+                        }
+                        break;
                 }//end switch
             }//end for
         };//end function
 
-        FormVerify.prototype.showError = function() {
+        FormVerify.prototype.showError = function() {//显示错误
             // console.log(this._error);
             //var obj = this._error[0].obj;
             // shake(obj, 8);
@@ -154,20 +167,22 @@ function FormVerify(obj) {
     }//end if
 
 };
+//test
 
-EventUtil.addHandler(form1, "submit", function(event) {
+EventUtil.addHandler(document.getElementById("myForm"), "submit", function(event) {
 
     var myForm = new FormVerify("myForm");
-    myForm.inputVerify("username","notnull,email,0-9");
-    myForm.inputVerify("height","notnull,number");
-    myForm.inputVerify("weight","notnull,number");
+    myForm.inputVerify("username","notnull,email,");
+    myForm.inputVerify("height","notnull,number,2-3");
+    myForm.inputVerify("phone","notnull,number,phone");
+
     if(myForm.showError()) {
         EventUtil.preventDefault(event);
     } else {
-        event = EventUtil.getEvent(event);
-        var target = EventUtil.getTarget(event);
-        // console.log(target);
-        var btn = target.elements["submit"];
+        // event = EventUtil.getEvent(event);
+        // var target = EventUtil.getTarget(event);
+        // // console.log(target);
+        // var btn = target.elements["submit"];
         // btn.disabled = true;
         
     }
