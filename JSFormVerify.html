@@ -28,7 +28,7 @@
     <input type="submit" id="submit" value="Submit" />
 </form>
 <script type="text/javascript">
-var EventUtil = {
+var EventUtil = {//一个处理跨浏览事件的handler
     addHandler : function(element, type, handler) {
         if(element.addEventListener) {
             element.addEventListener(type, handler, false);
@@ -104,6 +104,7 @@ function FormVerify(obj) {
     }
 
     this._error = new Array();//记录错误信息
+
     if(!FormVerify.prototype.inputVerify){
 
         FormVerify.prototype.inputVerify = function(name, rules) {
@@ -111,7 +112,7 @@ function FormVerify(obj) {
             if(input.type != "text" && input.type != "password" && input.type != "file") return false;
             var inputValue = (input.value).replace(/\s+/g,'');//过滤空格
             var rules = rules.split(",");
-            for(var i = 0, len = rules.length; i < len; i++) {
+            for(var i = 0, len = rules.length; i < len; i++) {//逐一验证各个条件
                 switch(rules[i]) {
                     case "notnull" : 
                         if(inputValue.length == 0) {
@@ -145,7 +146,7 @@ function FormVerify(obj) {
                         break;
                 }//end switch
             }//end for
-        };//end function
+        };//end inputVerify
 
         FormVerify.prototype.showError = function() {//显示错误
             // console.log(this._error);
@@ -161,14 +162,12 @@ function FormVerify(obj) {
                 return false;
             }
 
-        }
-
-        
+        }//end showError
     }//end if
 
-};
-//test
+};//end FormVerify
 
+//test
 EventUtil.addHandler(document.getElementById("myForm"), "submit", function(event) {
 
     var myForm = new FormVerify("myForm");
@@ -177,14 +176,13 @@ EventUtil.addHandler(document.getElementById("myForm"), "submit", function(event
     myForm.inputVerify("phone","notnull,number,phone");
 
     if(myForm.showError()) {
-        EventUtil.preventDefault(event);
+        EventUtil.preventDefault(event);//有错误，阻止提交
     } else {
         // event = EventUtil.getEvent(event);
         // var target = EventUtil.getTarget(event);
         // // console.log(target);
         // var btn = target.elements["submit"];
         // btn.disabled = true;
-        
     }
 
 });
